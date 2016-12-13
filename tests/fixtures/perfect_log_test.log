@@ -9,7 +9,7 @@ Used drive  : TSSTcorpDVD+-RW TS-U633F   Adapter: 1  ID: 0
 Read mode               : Secure
 Utilize accurate stream : Yes
 Defeat audio cache      : Yes
-Make use of C2 pointers : Yes
+Make use of C2 pointers : No
 
 Read offset correction                      : 6
 Overread into Lead-In and Lead-Out          : No

@@ -2,112 +2,38 @@
 
 namespace RipLogChecker;
 
-use RipLogChecker\Parsers\BaseParser;
-use RipLogChecker\Parsers\EacParser;
+use RipLogChecker\Exception\LogIdentifierException;
+use RipLogChecker\Result\ResultInterface;
 
 class RipLogChecker
 {
     /**
-     * The full text of the log file
-     *
-     * @var string
+     * @var LogIdentifier
      */
-    protected $log;
+    private $logIdentifier;
+
 
     /**
-     * @var BaseParser
+     * @param LogIdentifier $logIdentifier
      */
-    protected $parser;
-
-    /**
-     * The log score
-     *
-     * @var int
-     */
-    protected $score;
-
-    /**
-     * Gets log file
-     *
-     * @return string
-     */
-    public function getLog(): string
+    public function __construct(LogIdentifier $logIdentifier)
     {
-        return $this->log;
+        $this->logIdentifier = $logIdentifier;
     }
 
     /**
-     * Sets the log file
-     *
      * @param string $log
+     * @return ResultInterface
+     * @throws LogIdentifierException
      */
-    protected function setLog($log)
+    public function parse(string $log) : ResultInterface
     {
-        $this->log = $log;
-    }
+        $parser = $this->logIdentifier->identify($log);
 
-    /**
-     * Analyze the log set the score variable
-     *
-     * @return bool
-     */
-    protected function scoreLog(): bool
-    {
-        /* Create Parser object and pass the log */
-        $this->parser = new EacParser($this->log);
-
-        /* Parse the log */
-        if ($this->parser->parse()) {
-            $this->score += $this->parser->getDeductedPoints();
-            return true;
-        } else {
-            $this->score = 0;
-            return false;
+        if ($parser === null) {
+            throw new LogIdentifierException('Unable to match given log file');
         }
 
-    }
-
-    /**
-     * Creates a new RipLogChecker object based on the log file, and scores it
-     *
-     * RipLogChecker constructor.
-     * @param string $log
-     */
-    public function __construct(string $log)
-    {
-        /* Load the log file */
-        $this->setLog($log);
-
-        /* Initialize the default score to 100*/
-        $this->score = 100;
-
-        /* Score the log */
-        $this->scoreLog();
-    }
-
-    /**
-     * Get the log score
-     *
-     * @return int
-     */
-    public function getScore(): int
-    {
-        return $this->score;
-    }
-
-    /**
-     * @return BaseParser
-     */
-    public function getParser(): BaseParser
-    {
-        return $this->parser;
-    }
-
-    /**
-     * @param BaseParser $parser
-     */
-    public function setParser(BaseParser $parser)
-    {
-        $this->parser = $parser;
+        return $parser->parse($log);
     }
 }
